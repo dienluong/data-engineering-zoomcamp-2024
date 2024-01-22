@@ -1,0 +1,45 @@
+services:
+  postgres-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/postgres_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    volumes:
+      - dtc_postgres_volume:/var/lib/postgresql/data
+    networks:
+      - postgres-net
+    ports:
+      - "5432:5432"
+    secrets:
+      - postgres_user
+      - postgres_password
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD_FILE=/run/secrets/pgadmin_password
+    depends_on:
+      - postgres-db
+    volumes:
+      - dtc_pgadmin_volume:/var/lib/pgadmin
+    networks:
+      - postgres-net
+    ports:
+      - "8080:80"
+    secrets:
+      - pgadmin_password
+
+volumes:
+  dtc_postgres_volume:
+  dtc_pgadmin_volume:
+networks:
+  postgres-net:
+    external: true
+secrets:
+  postgres_user:
+    file: ../docker-secrets/pg_user.txt
+  postgres_password:
+    file: ../docker-secrets/pg_pw.txt
+  pgadmin_password:
+    file: ../docker-secrets/pgadmin_pw.txt
