@@ -1,0 +1,19 @@
+FROM python:3-alpine
+
+WORKDIR /usr/src/app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+# RUN apt-get update \
+#     && apt-get upgrade -y \
+#     && apt-get install -y wget \
+#     && apt-get autoremove -y \
+#     && apt-get clean -y \
+#     && rm -rf /var/lib/apt/lists/*
+# wget and gzip included in alpine
+RUN apk -U upgrade \
+    && apk cache -v sync 
+#    && apk add wget \
+COPY upload_data.py .
+
+CMD [ "./upload_data.py", "pgroot:pguser123@localhost/pgroot", "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz" ]
+ENTRYPOINT [ "python" ]
