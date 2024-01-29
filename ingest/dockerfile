@@ -3,12 +3,6 @@ FROM python:3-alpine
 WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-# RUN apt-get update \
-#     && apt-get upgrade -y \
-#     && apt-get install -y wget \
-#     && apt-get autoremove -y \
-#     && apt-get clean -y \
-#     && rm -rf /var/lib/apt/lists/*
 # wget and gzip included in alpine
 RUN apk -U upgrade \
     && apk cache -v sync 
