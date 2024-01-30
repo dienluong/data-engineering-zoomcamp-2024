@@ -9,5 +9,11 @@ RUN apk -U upgrade \
 #    && apk add wget \
 COPY upload_data.py .
 
-CMD [ "./upload_data.py", "pgroot:pguser123@localhost/pgroot", "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz" ]
-ENTRYPOINT [ "python" ]
+ENV DB_USER="pguser"
+ENV DB_PW="pguser123"
+ENV DB_HOST="postgres-db"
+ENV DB_NAME="pgroot"
+ENV CSV_URL="https://github.com/DataTalksClub/nyc-tlc-data/releases/download"
+ENV CSV_FILE="yellow/yellow_tripdata_2020-04.csv.gz" 
+#CMD ["pguser:pguser123@postgres-db/pgroot", "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz"]
+ENTRYPOINT [ "/bin/sh", "-c", "python ./upload_data.py ${DB_USER}:${DB_PW}@${DB_HOST}/${DB_NAME} ${CSV_URL}/${CSV_FILE}"]
