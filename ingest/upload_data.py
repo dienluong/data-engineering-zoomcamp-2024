@@ -47,4 +47,4 @@ for df in file_iter:
     df.to_sql(name=table_name, con=engine, if_exists='append')
     print(f'A chunk has been inserted. Took {time() - time_start}')
 print(f'Total time: {time() - total_time_start}')
-
+os.system(f'wc -l {csv_filename}')
