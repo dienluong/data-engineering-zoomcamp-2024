@@ -30,6 +30,35 @@ services:
     secrets:
       - pgadmin_password
 
+  magic:
+    image: mageai/mageai:latest
+    entrypoint: /bin/sh -c
+    command: [ "mage start $$PROJECT_NAME" ]
+    env_file:
+      - path: ./.env-mage
+    # build:
+    #  context: .
+    #  dockerfile: Dockerfile
+    depends_on:
+      - postgres-db
+#    environment:
+#      PROJECT_NAME: magic-zoomcamp
+#      USER_CODE_PATH: /home/src/${PROJECT_NAME}
+#      POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+#      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_HOST: ${POSTGRES_HOST}
+#      POSTGRES_PORT: ${POSTGRES_PORT}
+    ports:
+      - "6789:6789"
+    networks:
+      - postgres-net
+    volumes:
+      - ./mage-project/:/home/src/
+    #  - ~/Documents/secrets/personal-gcp.json:/home/src/personal-gcp.json
+    restart: on-failure:5
+
 volumes:
   dtc_postgres_volume:
   dtc_pgadmin_volume:
