@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description="Ingest data from csv file into pos
 parser.add_argument("-s", "--chunk-size", default=100000, type=int, help="Number of lines to process at a time")
 parser.add_argument("-t", "--table-name", default="yellow_taxi_tripdata", help="Table name")
 parser.add_argument("DB_URL", help="Postgres URL in format: user:pw@host/dbname")
-parser.add_argument("CSV_URL", help="URL to CSV file")
+parser.add_argument("CSV_URL", help="HTTP URL or local path to CSV file")
 args = vars(parser.parse_args())
 
 chunksize = args["chunk_size"]
@@ -23,14 +23,16 @@ db_url = args["DB_URL"]
 
 # Extract filename from URL
 csv_filename = urlparse(csv_url)
-if csv_filename.scheme != 'file':
+if csv_filename.scheme == "http" or csv_filename.scheme == "https":
     # Remote download
-    os.system(f"wget -c {csv_url} ")
+    os.system(f"wget --continue {csv_url} ")
     csv_filename = f'./{csv_filename.path.split("/")[-1]}'
-    os.system(f"yes n | gzip -k -d {csv_filename}")
+elif csv_filename.scheme == '':
+    csv_filename = f'{csv_filename.path}'
+
+if csv_filename.endswith(".gz"):
+    os.system(f"gzip --force --keep --decompress {csv_filename}")
     csv_filename = csv_filename.replace(".gz","")
-else:
-    csv_filename = f'/{csv_filename.netloc+csv_filename.path}'
 
 engine = create_engine(f'postgresql+psycopg2://{db_url}')
 
