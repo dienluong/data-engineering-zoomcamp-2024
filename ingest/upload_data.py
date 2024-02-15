@@ -13,22 +13,22 @@ parser = argparse.ArgumentParser(description="Ingest data from csv file into pos
 parser.add_argument("-s", "--chunk-size", default=100000, type=int, help="Number of lines to process at a time")
 parser.add_argument("-t", "--table-name", default="yellow_taxi_tripdata", help="Table name")
 parser.add_argument("DB_URL", help="Postgres URL in format: user:pw@host/dbname")
-parser.add_argument("CSV_URL", help="HTTP URL or local path to CSV file")
+parser.add_argument("CSV_URL", help="HTTP URL or local path to CSV file. Gzip-compressed supported.")
 args = vars(parser.parse_args())
 
 chunksize = args["chunk_size"]
 table_name = args["table_name"]
-csv_url = args["CSV_URL"]
+csv_url = urlparse(args["CSV_URL"])
 db_url = args["DB_URL"]
 
 # Extract filename from URL
-csv_filename = urlparse(csv_url)
-if csv_filename.scheme == "http" or csv_filename.scheme == "https":
+csv_filename = ""
+if csv_url.scheme == "http" or csv_url.scheme == "https":
     # Remote download
-    os.system(f"wget --continue {csv_url} ")
-    csv_filename = f'./{csv_filename.path.split("/")[-1]}'
-elif csv_filename.scheme == '':
-    csv_filename = f'{csv_filename.path}'
+    os.system(f"wget --continue { csv_url.geturl() } ")
+    csv_filename = f'./{csv_url.path.split("/")[-1]}'
+elif csv_url.scheme == '':
+    csv_filename = f'{csv_url.path}'
 
 if csv_filename.endswith(".gz"):
     os.system(f"gzip --force --keep --decompress {csv_filename}")
